@@ -187,13 +187,22 @@ async def analyze(req: AnalyzeRequest):
     try:
         parsed = extract_json(raw_text)
     except (ValueError, json.JSONDecodeError) as exc:
-        if data.get("stop_reason") == "max_tokens":
+        stop_reason = data.get("stop_reason")
+        if stop_reason == "max_tokens":
             raise HTTPException(
                 502,
                 "Model response was cut off before finishing the JSON (hit the output "
                 "token limit). Try again — this is usually transient.",
             ) from exc
-        raise HTTPException(502, f"Could not parse model output as JSON: {exc}") from exc
+        snippet = ""
+        if isinstance(exc, json.JSONDecodeError):
+            start = max(0, exc.pos - 80)
+            snippet = f" | near: ...{raw_text[start:exc.pos + 80]!r}..."
+        raise HTTPException(
+            502,
+            f"Could not parse model output as JSON: {exc} "
+            f"[stop_reason={stop_reason}, raw_len={len(raw_text)}]{snippet}",
+        ) from exc
 
     ahrefs_data = await fetch_ahrefs_domain_rating(req.url)
 
