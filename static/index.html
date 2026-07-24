@@ -64,6 +64,22 @@
   .analyze-btn:disabled{background:var(--muted-2);color:#0a0a0a;cursor:not-allowed;transform:none;}
   .hint{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted-2);margin-top:10px;}
 
+  .sample-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:16px;}
+  .sample-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.06em;}
+  .sample-chip{
+    background:var(--panel);border:1px solid var(--line);color:var(--text);
+    font-family:'JetBrains Mono',monospace;font-size:12px;border-radius:20px;
+    padding:6px 14px;cursor:pointer;transition:all .15s ease;display:inline-flex;align-items:center;gap:8px;
+  }
+  .sample-chip:hover{border-color:var(--teal);color:var(--teal);}
+  .sample-chip .sample-grade{color:var(--red);font-weight:600;}
+  .sample-banner{
+    display:none;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);
+    background:var(--gold-dim);border:1px dashed var(--gold);border-radius:8px;
+    padding:10px 14px;margin-bottom:20px;
+  }
+  .sample-banner.active{display:block;}
+
   .loading{display:none;margin-top:40px;}
   .loading.active{display:block;}
   .loading-line{
@@ -238,6 +254,12 @@
   </div>
   <div class="hint">// live web fetch + AI read of on-page signals — not a substitute for a paid crawl index</div>
 
+  <div class="sample-row">
+    <span class="sample-label">Try a sample:</span>
+    <button class="sample-chip" onclick="loadSample('julian')">thebooleanjulian.dev <span class="sample-grade">F · 28</span></button>
+    <button class="sample-chip" onclick="loadSample('accurova')">accurova.com <span class="sample-grade">F · 42</span></button>
+  </div>
+
   <div class="error-box" id="errorBox"></div>
 
   <div class="loading" id="loading">
@@ -249,6 +271,7 @@
   </div>
 
   <div class="results" id="results">
+    <div class="sample-banner" id="sampleBanner">// This is a cached sample report — no live fetch or API call was made.</div>
     <div class="target-bar">
       <span>Target: <b id="targetUrl">—</b></span>
       <div style="display:flex;align-items:center;gap:14px;">
@@ -507,6 +530,154 @@ function exportPdf(){
   document.title = prevTitle;
 }
 
+const SAMPLE_REPORTS = {
+  julian: {
+    targetUrl: 'https://thebooleanjulian.dev',
+    scanTime: 'Scanned 25/07/2026, 03:08:30',
+    data: {
+      overallScore: 28,
+      categories: {technical:32, content:22, authority:10, ux:45, geo:15},
+      meta: {
+        title: "thebooleanjulian.dev — (not retrievable via public index)",
+        titleLength: 0,
+        description: "(not retrievable via public index — no cached snippet found in search results)",
+        descriptionLength: 0,
+        headings: ["(H1-H6 structure could not be verified — page not indexed or cached in any search engine result at time of audit):"]
+      },
+      technicalChecks: [
+        {label:"Search Engine Indexation", status:"fail", detail:"Zero pages from thebooleanjulian.dev appear in Google or Bing index. The site is either brand new, has a noindex directive, blocks crawlers in robots.txt, or has not yet been submitted to Search Console. Estimated: no pages indexed."},
+        {label:"HTTPS / .dev TLD Enforcement", status:"pass", detail:".dev TLDs are on the HSTS preload list and require HTTPS by default — HTTPS is enforced at the registry level. This is a built-in pass for all .dev domains."},
+        {label:"Meta Title Tag", status:"warn", detail:"No title tag content is visible in any search result snippet or cached version. Cannot confirm whether a well-formed, keyword-rich title exists. Best-effort: likely present but possibly generic or empty."},
+        {label:"Meta Description", status:"warn", detail:"No meta description snippet surfaced in any public search result. Either absent or the page is not indexed yet. Should be 120-160 characters and describe the site owner and their specialty clearly."},
+        {label:"XML Sitemap", status:"warn", detail:"No sitemap.xml detected via public signals. Absence of a sitemap combined with zero indexation suggests crawl discovery has not been facilitated. Recommend creating and submitting sitemap.xml to Google Search Console and Bing Webmaster Tools."},
+        {label:"Mobile Responsiveness", status:"warn", detail:"Cannot be verified from public data. Most modern personal dev portfolio sites built with frameworks like Next.js, Astro, or similar are responsive — estimated pass, but unverified."},
+        {label:"Page Speed / Core Web Vitals", status:"warn", detail:"No CrUX field data available (site too new or low traffic). Cannot assess LCP, CLS, or INP. Recommend running PageSpeed Insights at pagespeed.web.dev and aiming for LCP < 2.5s, CLS < 0.1."}
+      ],
+      geoChecks: [
+        {label:"AI Bot Access in robots.txt", status:"fail", detail:"robots.txt could not be verified via public search. No evidence that GPTBot, ClaudeBot, anthropic-ai, PerplexityBot, Google-Extended, or OAI-SearchBot are explicitly allowed. Recommend explicitly allowing these user-agents to maximize AI engine crawlability."},
+        {label:"llms.txt File", status:"fail", detail:"No llms.txt file detected at thebooleanjulian.dev/llms.txt via any public signal. Adding a curated llms.txt helps AI engines (ChatGPT, Perplexity, Claude) understand and cite the site's content efficiently."},
+        {label:"Schema.org Structured Data", status:"fail", detail:"No JSON-LD or microdata structured data (Person, ProfilePage, Article, FAQPage, WebSite) was detected in any indexed snippet or public cache. AI engines have no machine-readable context about the page's purpose or entity."},
+        {label:"Quotable / Self-Contained Facts Near Top", status:"warn", detail:"No above-the-fold text was retrievable from search snippets or cached pages. AI engines require a concise, self-contained sentence near the top of the page to generate accurate citations and summaries."},
+        {label:"Author / Entity / E-E-A-T Signals", status:"fail", detail:"No author attribution, no organization markup, no About page, no contact information, and no trust signals are present."},
+        {label:"Freshness / Last-Updated Signal", status:"fail", detail:"No last-modified meta tag, no visible publication or update date, and no structured data dateModified field. AI engines cannot determine content freshness."}
+      ],
+      issues: [
+        {severity:"critical", title:"Site Not Indexed by Search Engines", detail:"A 'site:thebooleanjulian.dev' search returned zero results in Google. The site is effectively invisible to search engines and AI crawlers. This must be resolved first — verify robots.txt is not blocking Googlebot, submit sitemap to Google Search Console, and confirm no noindex meta tags are present."},
+        {severity:"critical", title:"Zero Schema.org Structured Data", detail:"No JSON-LD structured data was found. At minimum, a Person or ProfilePage schema with name, jobTitle, url, sameAs (linking to GitHub, LinkedIn, Twitter) should be present on the homepage. This is the single most impactful GEO fix."},
+        {severity:"critical", title:"No llms.txt File", detail:"No llms.txt file exists. As a developer site, this is a straightforward file to create and signals to AI engines which content to read and cite. Especially valuable for personal branding in AI-generated answers."},
+        {severity:"warning", title:"No Verified Meta Title or Description", detail:"Neither the page title nor meta description was retrievable from any public index. Titles should be 50-60 characters; descriptions 120-160 characters, including target keywords and a clear value proposition."},
+        {severity:"warning", title:"Zero Backlink Authority", detail:"No third-party sites were found linking to thebooleanjulian.dev. Domain authority is estimated at near-zero (DR ~0). Building even 5-10 quality inbound links from GitHub profiles, dev.to posts, or directory listings would significantly improve authority signals."},
+        {severity:"warning", title:"AI Crawler Access Unconfirmed", detail:"It is unknown whether GPTBot, ClaudeBot, PerplexityBot, and Google-Extended are permitted in robots.txt. If blocked, the site will not appear in any AI-generated answers regardless of content quality."},
+        {severity:"info", title:"Social Presence Minimal", detail:"Only a Twitter/X account (@julianboolean_) was found via public search. No LinkedIn, GitHub, dev.to, or Hashnode profile was surfaced. Cross-linking from established developer platforms would increase entity recognition for both SEO and GEO."},
+        {severity:"info", title:"No XML Sitemap Detected", detail:"No sitemap.xml was found via public signals. A sitemap helps search engine crawlers and AI bots discover all pages efficiently, especially important for a new domain with zero inbound links."}
+      ],
+      actionables: [
+        {title:"Submit Site to Google Search Console and Fix Indexation Blockers", detail:"Verify ownership in Google Search Console, inspect robots.txt for accidental Disallow: / rules, remove any noindex meta tags, submit sitemap.xml, and request indexing on the homepage. This is the prerequisite for all other SEO and GEO improvements to have any effect.", category:"technical", impact:15, effort:"Low"},
+        {title:"Add JSON-LD Person + WebSite Schema to Homepage", detail:"Inject a JSON-LD script block in the <head> with schema.org/Person (name, jobTitle, description, url, sameAs pointing to GitHub/LinkedIn/Twitter) and schema.org/WebSite (name, url, potentialAction for sitelinks search). This is the highest-impact GEO fix and helps AI engines accurately identify and cite you.", category:"geo", impact:13, effort:"Low"},
+        {title:"Create and Publish an llms.txt File", detail:"Add a plain Markdown file at thebooleanjulian.dev/llms.txt with an H1 (your name/brand), a blockquote summary of who you are and what the site contains, and H2 sections linking to key pages (about, projects, blog posts). This directly signals AI crawlers what to read and cite.", category:"geo", impact:10, effort:"Low"},
+        {title:"Write and Optimize Meta Title and Description for Homepage", detail:"Craft a title tag of 50-60 characters and a meta description of 120-160 characters that clearly states who you are, your tech stack, and your unique angle. Include primary keywords naturally.", category:"content", impact:9, effort:"Low"},
+        {title:"Explicitly Allow AI Crawlers in robots.txt", detail:"Add explicit Allow rules for GPTBot, ClaudeBot, anthropic-ai, PerplexityBot, Google-Extended, and OAI-SearchBot in robots.txt. Even if not currently blocked, explicit permission signals intent and future-proofs the site against conservative crawler defaults.", category:"geo", impact:8, effort:"Low"},
+        {title:"Build 10+ Quality Inbound Links from Developer Platforms", detail:"Add thebooleanjulian.dev to your GitHub profile, LinkedIn, Twitter/X bio, dev.to profile, and any developer directory. Cross-post at least one technical blog post to dev.to or Hashnode with a canonical link back to your site.", category:"authority", impact:8, effort:"Medium"},
+        {title:"Add a Clear, Quotable Bio Statement Above the Fold", detail:"Place a concise, self-contained identity statement in the first visible viewport — e.g., 'Julian is a [role] specializing in [X, Y, Z], building [type of projects].' This helps AI answer engines immediately understand who you are.", category:"content", impact:7, effort:"Low"},
+        {title:"Publish Technical Blog Content with Date and Author Markup", detail:"Publish at least 3-5 technical articles or project write-ups with schema.org/Article markup (datePublished, dateModified, author). Fresh, topically-relevant content is the primary driver of long-term organic traffic and AI citation likelihood.", category:"content", impact:7, effort:"High"}
+      ],
+      estimatedStats: {
+        domainAge: "Unknown — domain not found in public WHOIS cache at time of audit; estimated less than 12 months old based on zero indexation and zero backlinks. Unverified.",
+        backlinkTier: "Tier 5 (near-zero) — no inbound links detected from any public search result, social mention, or directory listing. Estimated DR ~0-2. Unverified.",
+        socialPresence: "Minimal — one Twitter/X account (@julianboolean_) found. No LinkedIn, GitHub, dev.to, or other developer platform profiles surfaced in search. Unverified.",
+        contentDepth: "Unknown — page content could not be retrieved from any public index or cache. Based on zero indexed pages, content depth is estimated as very low or the site is gated/unindexed."
+      },
+      geoStats: {
+        aiBotAccess: "Unverified — robots.txt not accessible via public data. Cannot confirm GPTBot, ClaudeBot, PerplexityBot, Google-Extended, or OAI-SearchBot are allowed. Treat as fail until confirmed.",
+        structuredData: "Not detected — no JSON-LD, microdata, or RDFa markup found in any indexed snippet or public cache. Critical gap for AI answer engine entity recognition.",
+        llmsTxt: "Absent — no llms.txt file exists at thebooleanjulian.dev/llms.txt.",
+        answerReadiness: "Very low — no quotable above-the-fold statement, no FAQ, no structured entity data retrievable."
+      },
+      keywords: ["thebooleanjulian", "Julian developer portfolio", "software developer blog", "frontend developer", "JavaScript developer", "web developer portfolio", "developer personal site", "julianboolean"],
+      dataSource: {authority:"ai_estimate", onPage:"live_fetch"}
+    }
+  },
+  accurova: {
+    targetUrl: 'https://accurova.com',
+    scanTime: 'Scanned 25/07/2026, 03:13:42',
+    data: {
+      overallScore: 42,
+      categories: {technical:45, content:52, authority:28, ux:55, geo:22},
+      meta: {
+        title: "Accurova",
+        titleLength: 8,
+        description: "View our competitive photography packages for product shoots, events, and portraits. Flexible pricing options starting from $250 with professional editing included.",
+        descriptionLength: 163,
+        headings: ["H1:Accurova", "H2:All packages include commercial usage rights, optimised colour-accurate post-production, and opt-in photo lab printing.", "H2:Standard Package", "H2:Pro Package", "H2:Premium Package", "H2:Accurova.AI", "H2:About Julian Cheung", "H2:Testimonials"]
+      },
+      technicalChecks: [
+        {label:"HTTPS / SSL", status:"pass", detail:"Site loads over HTTPS (www.accurova.com). SSL appears active based on successful page retrieval."},
+        {label:"Page Title Length", status:"fail", detail:"Title is only 'Accurova' — 8 characters. Optimal is 50-60 characters. Missing primary keywords like 'Singapore photographer' or service descriptors."},
+        {label:"Meta Description", status:"warn", detail:"A meta description is present on the /pricing/ page (163 chars) but the homepage description appears to be absent or minimal. The pricing page description is within range but is not sufficiently keyword-rich for the homepage."},
+        {label:"XML Sitemap", status:"warn", detail:"No evidence of a publicly referenced sitemap was found in search results or page snippets. Cannot confirm existence of sitemap.xml without direct crawl access."},
+        {label:"robots.txt", status:"warn", detail:"robots.txt existence could not be confirmed from public signals. No explicit AI bot directives (GPTBot, ClaudeBot, Google-Extended, PerplexityBot) were observed in any indexed snippet."},
+        {label:"Structured Data / Schema Markup", status:"fail", detail:"No schema.org JSON-LD markup (LocalBusiness, Person, Service, FAQPage, Review/AggregateRating) detected in any indexed page snippet. This is a significant gap for both SEO rich results and GEO citations."},
+        {label:"Canonical Tags", status:"warn", detail:"Cannot confirm canonical tag implementation without direct crawl. Risk of duplicate content between homepage and /pricing/ which partly duplicates package descriptions."},
+        {label:"Mobile Friendliness", status:"pass", detail:"Site appears to be a modern WordPress/Elementor-style build based on page structure. Assumed responsive layout, though Core Web Vitals cannot be verified without tool access."}
+      ],
+      geoChecks: [
+        {label:"AI Bot Access (robots.txt)", status:"fail", detail:"No evidence that GPTBot, ClaudeBot/anthropic-ai, PerplexityBot, Google-Extended, or OAI-SearchBot are explicitly allowed in robots.txt. Without explicit allow rules, AI crawlers may be restricted or undefined, reducing indexation by AI answer engines."},
+        {label:"llms.txt File", status:"fail", detail:"No llms.txt file detected at accurova.com/llms.txt. This file would help AI engines (ChatGPT, Perplexity, Claude) understand site structure, key pages, and entity context for citations."},
+        {label:"Schema.org Structured Data for GEO", status:"fail", detail:"No detectable schema markup for LocalBusiness, Person (Julian Cheung), Service, AggregateRating, or FAQPage. Structured data is a primary signal AI answer engines use to extract and cite factual entity information."},
+        {label:"Answer-Ready / Quotable Content", status:"warn", detail:"The homepage leads with package feature lists rather than a clear, self-contained entity definition. AI engines struggle to extract a concise, citable summary from the current structure."},
+        {label:"E-E-A-T / Author Identity Signals", status:"warn", detail:"Julian Cheung is named on the /about/ page with 8 years of experience, 100+ clients, and exhibition at Asia Business Show 2024. However, no schema Person markup and no external credential links make it hard for AI engines to validate authorship."},
+        {label:"Freshness / Last-Updated Signals", status:"warn", detail:"Copyright footer shows '© 2025 Accurova' on /testimonials/ and '© 2026 Accurova' on /accurova-ai/, indicating inconsistency. No visible last-updated timestamps on key pages."}
+      ],
+      issues: [
+        {severity:"critical", title:"Homepage title tag is brand-only (8 chars)", detail:"Title 'Accurova' contains no keywords. Missed opportunity for 'Accurova | Professional Photographer Singapore | Portraits, Events & Products'. This directly harms Google ranking and AI citation potential."},
+        {severity:"critical", title:"Zero schema.org structured data detected", detail:"No LocalBusiness, Person, Service, AggregateRating, or FAQPage markup found. Rich results, Google Business eligibility signals, and AI engine citations all depend on this. Multiple testimonials on site are wasted without Review/AggregateRating schema."},
+        {severity:"critical", title:"No llms.txt and no confirmed AI crawler permissions", detail:"With AI-driven search (Perplexity, ChatGPT Search, Google AI Overviews) becoming a primary discovery channel, the absence of llms.txt and explicit AI bot allow rules in robots.txt means the site is invisible to or uncrawlable by major AI answer engines."},
+        {severity:"warning", title:"Very low domain authority / backlink profile", detail:"Accurova was incorporated in March 2024 and is a sole proprietorship. External references come from directory sites, personal social profiles, and Medium. No authoritative photography or Singapore business sites link to accurova.com. Estimated DA is very low (likely 1-10 range)."},
+        {severity:"warning", title:"Social media presence is minimal", detail:"Facebook page has only 4 likes. Instagram has 185 followers. X/Twitter account exists but no posts visible. Social signals are weak, reducing off-page authority and brand trust signals for both Google and AI engines."},
+        {severity:"warning", title:"Homepage lacks a clear above-the-fold value proposition", detail:"The homepage jumps straight into package lists. There is no H1 tagline clearly stating who Accurova is, what they do, and where they operate. This hurts both UX and AI engine entity comprehension."},
+        {severity:"warning", title:"Inconsistent copyright year in footer", detail:"Footer shows '© 2025 Accurova' on /testimonials/ but '© 2026 Accurova' on /accurova-ai/. This suggests manual or outdated footer updates and sends mixed freshness signals."},
+        {severity:"info", title:"No blog or long-form content on main domain", detail:"Content publishing is happening on Medium (accurova.medium.com) rather than accurova.com/blog/. This means all SEO equity from those articles benefits Medium, not the main domain."},
+        {severity:"info", title:"Pricing page lacks FAQ schema", detail:"The /pricing/ page describes delivery timelines, usage rights, gallery access, and turnaround times — all perfect FAQ schema candidates that could earn rich results in Google and be cited by AI engines."}
+      ],
+      actionables: [
+        {title:"Add JSON-LD schema markup (LocalBusiness + Person + AggregateRating)", detail:"Implement schema.org/LocalBusiness with name, address (Singapore), serviceType (Photography), and priceRange. Add schema.org/Person for Julian Cheung (founder, photographer). Add AggregateRating pulling from the multiple testimonials already on site.", category:"geo", impact:15, effort:"Medium"},
+        {title:"Rewrite homepage title tag and add a keyword-rich meta description", detail:"Change title from 'Accurova' to something like 'Accurova | Professional Photographer Singapore — Portraits, Events & Products'. Write a 150-160 char meta description targeting 'Singapore photographer' and specific niches.", category:"technical", impact:12, effort:"Low"},
+        {title:"Create and publish llms.txt at accurova.com/llms.txt", detail:"Add a Markdown llms.txt file at the domain root with a blockquote entity summary and H2 sections linking to /about/, /pricing/, /accurova-ai/, /testimonials/. This directly enables AI answer engines to understand and cite the site.", category:"geo", impact:11, effort:"Low"},
+        {title:"Explicitly allow AI crawlers in robots.txt", detail:"Add explicit Allow rules for GPTBot (OpenAI), ClaudeBot and anthropic-ai (Anthropic), PerplexityBot, Google-Extended (Google AI Overviews), and OAI-SearchBot. This is a 15-minute fix with material GEO impact.", category:"geo", impact:10, effort:"Low"},
+        {title:"Migrate blog content from Medium to accurova.com/blog/", detail:"Currently 10+ articles are published on accurova.medium.com, passing all SEO link equity to Medium's domain. Moving these articles to accurova.com/blog/ would build topical authority for photography keywords on the main domain.", category:"content", impact:10, effort:"High"},
+        {title:"Add a clear H1 entity statement and above-the-fold summary on the homepage", detail:"Insert an H1 like 'Singapore Professional Photographer | Julian Cheung — Accurova' and a 2-3 sentence lede identifying who Accurova is, what services are offered, and where. AI engines extract the first clear, self-contained fact block they encounter.", category:"content", impact:9, effort:"Low"},
+        {title:"Build off-page authority through local Singapore photography directories and PR", detail:"The backlink profile is extremely thin (estimated DA 1-10, mostly directory auto-listings). Target photography association listings, wedding/event vendor directories, guest posts, and a press release about the Asia Business Show 2024 exhibition.", category:"authority", impact:9, effort:"High"},
+        {title:"Add FAQPage schema to /pricing/ page", detail:"The /pricing/ page already contains FAQ-style content: gallery delivery timelines, download duration, password-protected gallery, rush fees, and print options. Mark these up with schema.org/FAQPage for rich results and quotable AI answers.", category:"technical", impact:7, effort:"Low"}
+      ],
+      estimatedStats: {
+        domainAge: "Approximately 1-2 years. Business incorporated March 29, 2024 per Singapore ACRA registry. Domain registration date not verified independently; estimated mid-2023 to early 2024.",
+        backlinkTier: "Very Low (estimated DA 1-10). External references found only from auto-generated business directories, personal social profiles, and Medium. No editorial or niche-authoritative backlinks detected.",
+        socialPresence: "Minimal. Facebook: ~4 likes. Instagram: ~185 followers, 57 posts. X/Twitter: account exists, no visible posts. TikTok: account exists, no data. LinkedIn: Julian Cheung personal profile active with Accurova references.",
+        contentDepth: "Shallow on main domain. Homepage and ~4 inner pages (/about/, /pricing/, /testimonials/, /accurova-ai/) detected. Blog content published externally on Medium (~10 posts). No long-form cornerstone content on main domain."
+      },
+      geoStats: {
+        aiBotAccess: "Unverified / Likely Unoptimised. No robots.txt with AI crawler directives found in public signals. GPTBot, ClaudeBot, PerplexityBot, and Google-Extended rules not confirmed as explicitly allowed.",
+        structuredData: "Absent. No schema.org JSON-LD markup detected in any indexed page source snippet. No LocalBusiness, Person, Service, Review/AggregateRating, or FAQPage schema found.",
+        llmsTxt: "Absent — no llms.txt file detected at accurova.com/llms.txt.",
+        answerReadiness: "Low — homepage leads with package lists rather than a self-contained entity statement; no FAQ schema despite FAQ-ready pricing content."
+      },
+      keywords: ["Singapore professional photographer", "Julian Cheung photographer", "photography Singapore", "portrait photographer Singapore", "corporate event photographer Singapore", "cosplay photographer Singapore", "product photography Singapore", "Accurova photography", "wedding photographer Singapore", "Accurova.AI photography"],
+      dataSource: {authority:"ai_estimate", onPage:"live_fetch"}
+    }
+  }
+};
+
+function loadSample(key){
+  const sample = SAMPLE_REPORTS[key];
+  if(!sample) return;
+  document.getElementById('errorBox').classList.remove('active');
+  document.getElementById('urlInput').value = sample.targetUrl.replace(/^https?:\/\//,'');
+  render(sample.targetUrl, sample.data);
+  document.getElementById('scanTime').textContent = sample.scanTime + ' (sample)';
+  document.getElementById('sampleBanner').classList.add('active');
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
 async function runAnalysis(){
   const input = document.getElementById('urlInput');
   const btn = document.getElementById('analyzeBtn');
@@ -516,6 +687,7 @@ async function runAnalysis(){
 
   errorBox.classList.remove('active');
   results.classList.remove('active');
+  document.getElementById('sampleBanner').classList.remove('active');
 
   const targetUrl = normalizeUrl(input.value);
   if(!targetUrl){
