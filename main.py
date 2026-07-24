@@ -23,7 +23,7 @@ ANTHROPIC_VERSION = "2023-06-01"
 AHREFS_API_KEY = os.environ.get("AHREFS_API_KEY", "")
 AHREFS_API_BASE = "https://api.ahrefs.com/v3"
 
-app = FastAPI(title="Probe — SEO Analyzer", version="1.1.0")
+app = FastAPI(title="Probe — SEO Analyzer", version="1.2.0")
 
 SYSTEM_PROMPT = """You are a combined SEO + GEO (Generative Engine Optimization) audit engine. Fetch and read the
 given URL using web search/fetch, then output ONLY a single valid JSON object (no markdown fences, no prose before
