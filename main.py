@@ -158,7 +158,7 @@ async def analyze(req: AnalyzeRequest):
 
     payload = {
         "model": ANTHROPIC_MODEL,
-        "max_tokens": 1500,
+        "max_tokens": 8000,
         "system": SYSTEM_PROMPT,
         "messages": [{"role": "user", "content": f"Audit this URL: {req.url}"}],
         "tools": [{"type": "web_search_20250305", "name": "web_search"}],
@@ -187,6 +187,12 @@ async def analyze(req: AnalyzeRequest):
     try:
         parsed = extract_json(raw_text)
     except (ValueError, json.JSONDecodeError) as exc:
+        if data.get("stop_reason") == "max_tokens":
+            raise HTTPException(
+                502,
+                "Model response was cut off before finishing the JSON (hit the output "
+                "token limit). Try again — this is usually transient.",
+            ) from exc
         raise HTTPException(502, f"Could not parse model output as JSON: {exc}") from exc
 
     ahrefs_data = await fetch_ahrefs_domain_rating(req.url)
