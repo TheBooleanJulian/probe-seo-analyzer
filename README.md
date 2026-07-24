@@ -166,7 +166,7 @@ Visit `http://localhost:8000`.
 | Variable            | Required | Default              | Notes                                  |
 |---------------------|----------|-----------------------|-----------------------------------------|
 | `ANTHROPIC_API_KEY`  | Yes      | —                     | Server-side only, never exposed to the client |
-| `ANTHROPIC_MODEL`    | No       | `claude-sonnet-4-6`   | Override to test other models          |
+| `ANTHROPIC_MODEL`    | No       | `claude-haiku-4-5-20251001` | Override to test other models (e.g. switch back to a Sonnet model for higher-quality audits) |
 | `PORT`               | No       | `8000`                | Set automatically by Zeabur            |
 
 ## Deploying on Zeabur
