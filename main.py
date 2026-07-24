@@ -158,10 +158,12 @@ async def analyze(req: AnalyzeRequest):
 
     payload = {
         "model": ANTHROPIC_MODEL,
-        "max_tokens": 8000,
+        "max_tokens": 4096,
         "system": SYSTEM_PROMPT,
         "messages": [{"role": "user", "content": f"Audit this URL: {req.url}"}],
-        "tools": [{"type": "web_search_20250305", "name": "web_search"}],
+        "tools": [
+            {"type": "web_search_20250305", "name": "web_search", "max_uses": 5}
+        ],
     }
     headers = {
         "x-api-key": ANTHROPIC_API_KEY,
@@ -215,7 +217,13 @@ async def analyze(req: AnalyzeRequest):
     if ahrefs_data:
         parsed["verifiedStats"] = ahrefs_data
 
+    usage = data.get("usage", {})
     parsed["_meta"] = {"targetUrl": req.url, "model": ANTHROPIC_MODEL}
+    print(
+        f"[analyze] target={req.url} input_tokens={usage.get('input_tokens')} "
+        f"output_tokens={usage.get('output_tokens')} "
+        f"web_searches={usage.get('server_tool_use', {}).get('web_search_requests')}"
+    )
     return parsed
 
 
