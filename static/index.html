@@ -267,6 +267,7 @@
     <span class="sample-label">Try a sample:</span>
     <button class="sample-chip" onclick="loadSample('julian')">thebooleanjulian.dev <span class="sample-grade">F · 28</span></button>
     <button class="sample-chip" onclick="loadSample('accurova')">accurova.com <span class="sample-grade">F · 42</span></button>
+    <button class="sample-chip" onclick="loadSample('bni')">bnicrescendo.sg <span class="sample-grade" style="color:var(--yellow,#e0b325)">D · 62</span></button>
   </div>
 
   <div class="error-box" id="errorBox"></div>
@@ -671,6 +672,69 @@ const SAMPLE_REPORTS = {
         answerReadiness: "Low — homepage leads with package lists rather than a self-contained entity statement; no FAQ schema despite FAQ-ready pricing content."
       },
       keywords: ["Singapore professional photographer", "Julian Cheung photographer", "photography Singapore", "portrait photographer Singapore", "corporate event photographer Singapore", "cosplay photographer Singapore", "product photography Singapore", "Accurova photography", "wedding photographer Singapore", "Accurova.AI photography"],
+      dataSource: {authority:"ai_estimate", onPage:"live_fetch"}
+    }
+  },
+  bni: {
+    targetUrl: 'https://bnicrescendo.sg/',
+    scanTime: 'Scanned 25/07/2026, 04:07:47',
+    data: {
+      overallScore: 62,
+      categories: {technical:58, content:65, authority:68, ux:60, geo:50},
+      meta: {
+        title: "Join BNI Crescendo: Network, Connect, and Grow Your Business Today!",
+        titleLength: 71,
+        description: "Join BNI Crescendo Singapore and grow your business through networking. Connect with professionals, exchange referrals, and expand your reach. Build lasting business relationships today!",
+        descriptionLength: 179,
+        headings: ["H1:Join BNI Crescendo: Network, Connect, and Grow Your Business Today!", "H2:Weekly Meeting (Every Thursday):", "H2:Conversations With Crescendo:", "H2:Health & Wellness:", "H2:Business:", "H2:Marketing:", "H2:Deals:"]
+      },
+      technicalChecks: [
+        {label:"HTTPS/SSL Implementation", status:"pass", detail:"Site is served over HTTPS, which is essential for security and SEO."},
+        {label:"Mobile Responsiveness", status:"pass", detail:"Site appears responsive based on search result snippets; no obvious mobile compatibility issues detected."},
+        {label:"Core Web Vitals Signals", status:"warn", detail:"No performance metrics visible in search results; recommend testing with PageSpeed Insights and Web Vitals."},
+        {label:"XML Sitemap", status:"warn", detail:"No evidence of sitemap.xml submission confirmed; should verify presence at /sitemap.xml and submit to GSC."},
+        {label:"Structured Data (Schema)", status:"fail", detail:"No schema.org markup (Organization, Article, FAQPage) detected in search results; missing for rich snippets."},
+        {label:"Canonical Tags", status:"warn", detail:"Cannot verify canonical implementation from search results; ensure all pages have correct self-referential canonicals."}
+      ],
+      geoChecks: [
+        {label:"AI Bot Allowance (robots.txt)", status:"fail", detail:"Cannot confirm whether robots.txt allows GPTBot, ClaudeBot, PerplexityBot, Google-Extended, OAI-SearchBot without direct access. Recommend allowing all major AI crawlers."},
+        {label:"llms.txt File Presence", status:"fail", detail:"No llms.txt file detected at bnicrescendo.sg/llms.txt. Missing strategic GEO opportunity to guide AI systems toward most important content."},
+        {label:"Clear, Quotable Facts Near Top", status:"pass", detail:"Homepage meta description contains clear, self-contained value proposition: 'Join BNI Crescendo Singapore and grow your business through networking.' Good for AI citation."},
+        {label:"E-E-A-T Signals (Organization Identity)", status:"warn", detail:"Footer shows website managed by Goh Tjoei Kok (Zeelous Marketing), but lacks clear organizational identity, domain authority founder info, or published author bios near content."},
+        {label:"Freshness & Last-Updated Signals", status:"pass", detail:"Recent page updates visible (February 2025), and copyright shows 2025. However, homepage lacks explicit 'last updated' metadata tags for AI visibility."},
+        {label:"Content Structure for AI Ingestion", status:"warn", detail:"Content appears organized but lacks explicit summary sections, FAQ blocks, or markdown-friendly summaries that AI systems prefer for inference-time ingestion."}
+      ],
+      issues: [
+        {severity:"critical", title:"Missing Schema Markup", detail:"No structured data detected (Organization, FAQPage, Article, Event, or LocalBusiness schema). Essential for rich snippets, AI understanding, and future-proofing for GEO."},
+        {severity:"critical", title:"No llms.txt File", detail:"Missing modern GEO best practice. Site is not optimized to help AI language models understand its purpose, authority, and key content efficiently."},
+        {severity:"warning", title:"Meta Description Exceeds Optimal Length", detail:"At 179 characters, meta description may be truncated on mobile (ideal: 150-155 chars). Shorten to retain CTR-driving messaging."},
+        {severity:"warning", title:"Page Title Length at Upper Limit", detail:"Title tag at 71 characters is near truncation threshold for mobile (45-55 chars recommended). Consider shortening for mobile SERPs."},
+        {severity:"warning", title:"Weak E-E-A-T Signals", detail:"Limited author/entity credibility indicators. No visible mission statement, leadership bios, or trust badges. AI systems may downweight citations."},
+        {severity:"info", title:"No Clear Content Freshness Metadata", detail:"Missing meta 'modifieddate' or explicit 'Last Updated' labels near key content. Harms AI perception of relevance and timeliness."}
+      ],
+      actionables: [
+        {title:"Implement Organization & Event Schema Markup", detail:"Add schema.org/Organization (with logo, contact, social profiles) and schema.org/Event for weekly meetings. Improves AI understanding, rich snippets, and E-E-A-T signals.", category:"technical", impact:12, effort:"Medium"},
+        {title:"Create and Deploy llms.txt File", detail:"Build a Markdown-formatted llms.txt at site root listing key pages (membership, about, weekly meeting, contact) with summaries. Helps ChatGPT, Claude, Perplexity cite and reference BNI Crescendo.", category:"geo", impact:10, effort:"Low"},
+        {title:"Add Author/Leadership E-E-A-T Signals", detail:"Create short 'About Leadership' section or individual bios for chapter founders/officers. Display credentials and years in business near homepage or footer. Boosts AI trust scoring.", category:"authority", impact:8, effort:"Medium"},
+        {title:"Create FAQ & HowTo Schema for Key Pages", detail:"Add FAQPage schema to a dedicated 'FAQs' page (membership, meeting logistics, roles). Add HowTo schema for 'How to Join' or 'Member Benefits.' Improves AI answer readiness.", category:"technical", impact:7, effort:"Medium"},
+        {title:"Shorten and Optimize Meta Title & Description", detail:"Trim title to <60 chars: 'BNI Crescendo Singapore | Network & Grow' and description to 150 chars focusing on value. Test mobile rendering.", category:"content", impact:6, effort:"Low"},
+        {title:"Add Structured Summaries & Call-to-Action Sections", detail:"Break key content (membership value, event details, testimonials) into short, quotable blockquote or summary sections. Improves AI context windows and citation quality.", category:"content", impact:6, effort:"Medium"},
+        {title:"Add Meta 'modifieddate' & 'Last Updated' Labels", detail:"Include <meta name='modifieddate' content='YYYY-MM-DD'> in <head> and visible 'Last Updated: [Date]' near top-level content. Signals freshness to AI and search engines.", category:"geo", impact:5, effort:"Low"},
+        {title:"Verify and Optimize robots.txt for AI Bots", detail:"Ensure robots.txt explicitly allows GPTBot, ClaudeBot, PerplexityBot, Google-Extended, and OAI-SearchBot. Comment the file for clarity. Test with Google's robots.txt tester.", category:"geo", impact:4, effort:"Low"}
+      ],
+      estimatedStats: {
+        domainAge: "Approximately 7-10 years (registered pre-2018 based on search footprint); effective SEO age estimated 5+ years given regular content updates.",
+        backlinkTier: "Moderate (2-3 tiers). Local Singapore networking niche with references from member websites and event listings; not heavily linked from authority domains.",
+        socialPresence: "Active (Facebook, Instagram, Telegram, WhatsApp community channels noted in footer). Engagement level unknown; recommend auditing social profiles for reach.",
+        contentDepth: "Medium. Homepage and member directory are solid, but blog/resource hub (Crescendo Reads, Networking Tips) appears sparse. Opportunity for deeper vertical content."
+      },
+      geoStats: {
+        aiBotAccess: "Presumed allowed by default (no explicit blocks noted), but robots.txt not verified. Recommend explicit allow directives for all major LLM crawlers.",
+        structuredData: "Minimal. Only basic HTML meta present. Urgently needs Organization, Event, and FAQPage schema for AI systems to extract trustworthiness and answer readiness.",
+        llmsTxt: "Absent — no llms.txt file detected at bnicrescendo.sg/llms.txt.",
+        answerReadiness: "Moderate — homepage has a clear quotable value proposition, but lacks FAQ blocks and structured summaries for deeper AI ingestion."
+      },
+      keywords: ["BNI Crescendo Singapore", "business networking Singapore", "networking events Singapore", "business referrals Singapore", "membership networking", "professional networking groups", "chamber of commerce Singapore", "business growth through networking", "Crescendo chapter Singapore", "weekly networking meetings"],
       dataSource: {authority:"ai_estimate", onPage:"live_fetch"}
     }
   }

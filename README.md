@@ -2,11 +2,9 @@
 
 # Probe — SEO & GEO Site Health Analyzer
 
-**Built by TheBooleanJulian**
-
 **Point a URL at Probe and get an AI-powered audit covering SEO and AI-answer-engine readiness in seconds.**
 
-![Version](https://img.shields.io/badge/version-1.2.0-00D4C8)
+![Version](https://img.shields.io/badge/version-1.3.0-00D4C8)
 ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/-FastAPI-009688?logo=fastapi&logoColor=white)
 ![Claude API](https://img.shields.io/badge/-Claude%20API-D4A017)
@@ -39,7 +37,7 @@ Probe is an SEO and Generative Engine Optimization (GEO) auditor for site owners
 - **Prioritized actionables** — 5–8 concrete fixes ranked by estimated score impact and effort level, spanning both SEO and GEO categories
 - **AI Estimate transparency** — all AI-inferred figures (backlink tier, domain age, social presence) carry an `AI Estimate` badge so nothing is presented as measured fact
 - **Optional Ahrefs integration** — set `AHREFS_API_KEY` server-side to swap AI estimates on Domain Rating and Ahrefs Rank for verified Ahrefs v3 data
-- **Sample report demo** — landing page includes instant, zero-cost example reports rendered client-side
+- **Sample report demo** — landing page includes 3 instant, zero-cost example reports rendered client-side
 - **PDF export** — client-side via `window.print()` with a print stylesheet; no server-side dependencies
 - **Cost-controlled** — web search capped at 5 uses per audit; token and search count logged per request
 
@@ -246,6 +244,13 @@ plan/credit balance instead of a single global `AHREFS_API_KEY`.
 Versioned using [semver](https://semver.org/) (`major.minor.patch`) — major for
 breaking/legal changes, minor for new features, patch for fixes. Matches the
 `version` set on the FastAPI app in `main.py`.
+
+### v1.3.0 — 2026-07-25
+- **Added**: Third sample report on the landing page (`bnicrescendo.sg`) —
+  extracted from a real audit PDF, joining `thebooleanjulian.dev` and
+  `accurova.com` as instant, zero-cost example reports.
+- **Added**: Page title and "Built by TheBooleanJulian" byline to the
+  landing page and README.
 
 ### v1.2.0 — 2026-07-25
 - **Changed**: Relicensed from MIT to dual AGPLv3 / Commercial license (see
