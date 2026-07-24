@@ -1,10 +1,24 @@
+<div align="center">
+
 # Probe — SEO & GEO Site Health Analyzer
 
-Point it at a URL, get a live-read audit: overall score, category breakdown
-(Technical / Content / Authority / UX / **GEO**), meta & heading checks,
-**GEO (Generative Engine Optimization)** checks for AI-answer-engine readiness,
-flagged issues, prioritized actionables with estimated score impact, and an
-exportable PDF report.
+**Point a URL at Probe and get an AI-powered audit covering SEO and AI-answer-engine readiness in seconds.**
+
+![Version](https://img.shields.io/badge/version-1.2.0-00D4C8)
+![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/-FastAPI-009688?logo=fastapi&logoColor=white)
+![Claude API](https://img.shields.io/badge/-Claude%20API-D4A017)
+![License](https://img.shields.io/badge/license-AGPLv3%20%2F%20Commercial-00D4C8.svg)
+
+</div>
+
+---
+
+![Probe — SEO Analyzer](assets/hero.png)
+
+## What it does
+
+Probe is an SEO and Generative Engine Optimization (GEO) auditor for site owners and developers who want to know not just how search engines see their pages, but how AI answer engines (ChatGPT, Perplexity, Google AI Overviews, Claude) read and cite them. Submit a URL and the backend uses Claude with live web search to fetch the page and return a structured scorecard: an overall score, category breakdowns, meta/heading analysis, flagged issues, and prioritized actionables with estimated score impact. Results can be exported as a PDF client-side with no extra dependencies.
 
 ## How it works
 
@@ -15,6 +29,17 @@ exportable PDF report.
   parses the structured JSON audit back to the frontend.
 - **PDF export** — client-side via `window.print()` with a print stylesheet;
   no extra dependencies.
+
+## Features
+
+- **SEO + GEO audit in one request** — Technical, Content, Authority, UX, and GEO category scores, all in a single structured JSON response from Claude
+- **GEO checks** — evaluates AI crawler access (`robots.txt` for GPTBot, ClaudeBot, PerplexityBot, Google-Extended, OAI-SearchBot), `llms.txt` presence, schema.org structured data, quotability of key facts, and author/entity clarity
+- **Prioritized actionables** — 5–8 concrete fixes ranked by estimated score impact and effort level, spanning both SEO and GEO categories
+- **AI Estimate transparency** — all AI-inferred figures (backlink tier, domain age, social presence) carry an `AI Estimate` badge so nothing is presented as measured fact
+- **Optional Ahrefs integration** — set `AHREFS_API_KEY` server-side to swap AI estimates on Domain Rating and Ahrefs Rank for verified Ahrefs v3 data
+- **Sample report demo** — landing page includes instant, zero-cost example reports rendered client-side
+- **PDF export** — client-side via `window.print()` with a print stylesheet; no server-side dependencies
+- **Cost-controlled** — web search capped at 5 uses per audit; token and search count logged per request
 
 ## SEO vs. GEO
 
@@ -49,39 +74,98 @@ users get estimates), the natural next step is adding a billing provider
 (Stripe is the common choice) and gating the `fetch_ahrefs_domain_rating` call
 in `main.py` behind the requesting user's plan instead of a single global key.
 
-## Changelog
+## Tech Stack
 
-Versioned using [semver](https://semver.org/) (`major.minor.patch`) — major for
-breaking/legal changes, minor for new features, patch for fixes. Matches the
-`version` set on the FastAPI app in `main.py`.
+| Layer | Choice |
+|---|---|
+| Backend | FastAPI + httpx |
+| Frontend | Single-file HTML (dark-premium UI) |
+| AI | Claude API (Anthropic), `web_search` tool |
+| Hosting | Docker (Dockerfile + Procfile provided) |
 
-### v1.2.0 — 2026-07-25
-- **Changed**: Relicensed from MIT to dual AGPLv3 / Commercial license (see
-  [License](#license)) — a major-relevant change to the terms under which the
-  code is available, tracked here even though the app's runtime behavior is
-  unchanged.
-- **Docs**: Expanded the roadmap with additional planned features.
+## Quick Start
 
-### v1.1.0 — 2026-07-25
-- **Added**: Sample report demo on the landing page (`thebooleanjulian.dev`,
-  `accurova.com`) — instant, zero-cost example reports rendered client-side.
-- **Fixed**: `/api/analyze` returned a generic parse error when the model's
-  JSON response was truncated; raised `max_tokens` from 1500 → 4096 to stop
-  truncation on larger audits.
-- **Fixed**: Added diagnostics (`stop_reason`, response length, failure
-  snippet) to JSON parse errors so future failures are debuggable from the
-  error message alone.
-- **Changed**: Capped the `web_search` tool to `max_uses: 5` and added
-  per-request token/search-count logging, after an unindexed domain caused
-  the model to run ~20 searches (~$0.20) chasing content it couldn't find.
+```bash
+git clone https://github.com/TheBooleanJulian/probe-seo-analyzer
+cd probe-seo-analyzer
+pip install -r requirements.txt
+cp .env.example .env
+# Edit .env and add your ANTHROPIC_API_KEY
+python main.py
+```
 
-### v1.0.0 — 2026-07-24
-- Initial release: live-read SEO + GEO audit engine (FastAPI backend proxying
-  Claude with the `web_search` tool), single-file dark-UI frontend, PDF
-  export via print stylesheet, optional Ahrefs Domain Rating verification
-  hook, MIT license.
+Or with Docker:
 
-## Future Roadmap
+```bash
+docker build -t probe .
+docker run -p 8000:8000 --env-file .env probe
+```
+
+Then open `http://localhost:8000`.
+
+## Configuration
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `ANTHROPIC_API_KEY` | Yes | — | Anthropic API key — used server-side to call Claude, never exposed to the client |
+| `ANTHROPIC_MODEL` | No | `claude-haiku-4-5-20251001` | Claude model to use — override to test other models (e.g. switch to a Sonnet model for higher-quality audits) |
+| `AHREFS_API_KEY` | No | — | Ahrefs v3 API key; when set, swaps AI estimates on Domain Rating / Ahrefs Rank for verified data |
+| `PORT` | No | `8000` | Set automatically by Zeabur |
+
+## Project Structure
+
+```
+probe-seo-analyzer/
+|-- main.py               # FastAPI app + Anthropic/Ahrefs integration
+|-- static/
+|   `-- index.html        # Single-file HTML/CSS/JS frontend
+|-- assets/
+|   `-- hero.png          # README banner
+|-- requirements.txt
+|-- Dockerfile
+|-- Procfile
+|-- .env.example
+`-- LICENSE
+```
+
+## Deploying on Zeabur
+
+1. Push this repo to GitHub (see branching note below).
+2. In Zeabur, create a new service from the GitHub repo — it will build from
+   the included `Dockerfile` automatically (Procfile is included as a
+   Nixpacks fallback if Docker build is skipped).
+3. Add `ANTHROPIC_API_KEY` (and optionally `ANTHROPIC_MODEL`) as environment
+   variables on the service.
+4. Deploy. Zeabur assigns `PORT` automatically — the app already reads it.
+
+## Branching workflow
+
+Follows the standard `feature → dev → main` pattern:
+
+- Build in `feature/*` branches.
+- Merge into `dev` for integration testing against a Zeabur preview
+  environment.
+- Merge `dev` → `main` to deploy to production once verified.
+
+## Notes on scope
+
+Scores are AI-estimated from a live page read plus public web search signals —
+this is not backed by a crawled backlink index (Ahrefs/Moz-grade authority
+data isn't available without their paid APIs). Treat category/authority
+numbers as directional, not exact.
+
+## Status / Roadmap
+
+**Done**
+
+- [x] Full SEO + GEO audit via Claude with live web search
+- [x] Structured JSON scorecard: scores, meta, technical checks, GEO checks, issues, actionables
+- [x] Optional Ahrefs v3 Domain Rating integration (server-side flag)
+- [x] Sample demo reports on landing page
+- [x] PDF export via print stylesheet
+- [x] Web search capped and per-request cost logging
+- [x] JSON parse error diagnostics for production debugging
+- [x] Dual AGPLv3 / Commercial license
 
 **Paid credit-based subscription tier.** The Ahrefs hook described above is
 currently all-or-nothing (one server-side key, everyone gets verified data or
@@ -115,6 +199,12 @@ plan/credit balance instead of a single global `AHREFS_API_KEY`.
 
 **Other planned features / open suggestions:**
 
+- **Per-user gating of Ahrefs verified data** behind the billing plan above,
+  rather than a single global server flag — hook is already in `main.py`,
+  needs a billing provider wired in.
+- **Ahrefs Enterprise-tier endpoints** for full backlink/referring-domain data
+  (backlink tier, social presence, content depth remain AI estimates even
+  when `AHREFS_API_KEY` is set).
 - **Rate limiting & abuse protection.** `/api/analyze` is currently public
   and unauthenticated — every request costs real Anthropic API spend. Before
   any wider traffic, add per-IP rate limiting (e.g. `slowapi`) and/or a
@@ -144,63 +234,46 @@ plan/credit balance instead of a single global `AHREFS_API_KEY`.
 - **Export/integration options beyond PDF.** CSV/JSON export of the
   actionables list, and optionally a Slack/webhook notification when a
   scheduled re-audit finds a regression.
+- **Tests.** No test files currently exist — at least a JSON parse and URL
+  normalisation unit test would protect the audit pipeline from regressions.
+- **CI.** No CI config detected — a GitHub Actions workflow for lint/test on
+  PR would close the gap given the public repo.
 
-## Local setup
+## Changelog
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+Versioned using [semver](https://semver.org/) (`major.minor.patch`) — major for
+breaking/legal changes, minor for new features, patch for fixes. Matches the
+`version` set on the FastAPI app in `main.py`.
 
-cp .env.example .env
-# edit .env and set ANTHROPIC_API_KEY
+### v1.2.0 — 2026-07-25
+- **Changed**: Relicensed from MIT to dual AGPLv3 / Commercial license (see
+  [License](#license)) — a major-relevant change to the terms under which the
+  code is available, tracked here even though the app's runtime behavior is
+  unchanged.
+- **Docs**: Expanded the roadmap with additional planned features.
 
-export $(cat .env | xargs)
-uvicorn main:app --reload
-```
+### v1.1.0 — 2026-07-25
+- **Added**: Sample report demo on the landing page (`thebooleanjulian.dev`,
+  `accurova.com`) — instant, zero-cost example reports rendered client-side.
+- **Fixed**: `/api/analyze` returned a generic parse error when the model's
+  JSON response was truncated; raised `max_tokens` from 1500 → 4096 to stop
+  truncation on larger audits.
+- **Fixed**: Added diagnostics (`stop_reason`, response length, failure
+  snippet) to JSON parse errors so future failures are debuggable from the
+  error message alone.
+- **Changed**: Capped the `web_search` tool to `max_uses: 5` and added
+  per-request token/search-count logging, after an unindexed domain caused
+  the model to run ~20 searches (~$0.20) chasing content it couldn't find.
 
-Visit `http://localhost:8000`.
-
-## Environment variables
-
-| Variable            | Required | Default              | Notes                                  |
-|---------------------|----------|-----------------------|-----------------------------------------|
-| `ANTHROPIC_API_KEY`  | Yes      | —                     | Server-side only, never exposed to the client |
-| `ANTHROPIC_MODEL`    | No       | `claude-haiku-4-5-20251001` | Override to test other models (e.g. switch back to a Sonnet model for higher-quality audits) |
-| `PORT`               | No       | `8000`                | Set automatically by Zeabur            |
-
-## Deploying on Zeabur
-
-1. Push this repo to GitHub (see branching note below).
-2. In Zeabur, create a new service from the GitHub repo — it will build from
-   the included `Dockerfile` automatically (Procfile is included as a
-   Nixpacks fallback if Docker build is skipped).
-3. Add `ANTHROPIC_API_KEY` (and optionally `ANTHROPIC_MODEL`) as environment
-   variables on the service.
-4. Deploy. Zeabur assigns `PORT` automatically — the app already reads it.
-
-## Branching workflow
-
-Follows the standard `feature → dev → main` pattern:
-
-- Build in `feature/*` branches.
-- Merge into `dev` for integration testing against a Zeabur preview
-  environment.
-- Merge `dev` → `main` to deploy to production once verified.
-
-## Notes on scope
-
-Scores are AI-estimated from a live page read plus public web search signals —
-this is not backed by a crawled backlink index (Ahrefs/Moz-grade authority
-data isn't available without their paid APIs). Treat category/authority
-numbers as directional, not exact.
+### v1.0.0 — 2026-07-24
+- Initial release: live-read SEO + GEO audit engine (FastAPI backend proxying
+  Claude with the `web_search` tool), single-file dark-UI frontend, PDF
+  export via print stylesheet, optional Ahrefs Domain Rating verification
+  hook, MIT license.
 
 ## License
 
-This project is dual licensed.
-
-- Community Edition — [GNU Affero General Public License v3 (AGPLv3)](LICENSE). Free to use, modify, and self-host. If you distribute a modified version or run it as a network service, you must make the corresponding source available.
-- Commercial License — for organisations that want to embed, modify, or distribute this software without AGPLv3's obligations. See [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md).
+Dual-licensed: **AGPLv3** for open-source use and **Commercial** for proprietary/SaaS deployments. See [`LICENSE`](LICENSE), [`COMMERCIAL-LICENSE.md`](COMMERCIAL-LICENSE.md), and [`NOTICE`](NOTICE) for terms. Trademark policy in [`TRADEMARKS.md`](TRADEMARKS.md).
 
 ---
 
