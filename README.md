@@ -2,6 +2,8 @@
 
 # Probe — SEO & GEO Site Health Analyzer
 
+**Built by TheBooleanJulian**
+
 **Point a URL at Probe and get an AI-powered audit covering SEO and AI-answer-engine readiness in seconds.**
 
 ![Version](https://img.shields.io/badge/version-1.2.0-00D4C8)
