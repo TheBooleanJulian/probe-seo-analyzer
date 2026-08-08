@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/probe-logo.png" alt="Probe logo" width="140">
+
 # Probe — SEO & GEO Site Health Analyzer
 
 **Point a URL at Probe and get an AI-powered audit covering SEO and AI-answer-engine readiness in seconds.**
