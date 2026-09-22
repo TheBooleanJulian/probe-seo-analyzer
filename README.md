@@ -76,6 +76,10 @@ users get estimates), the natural next step is adding a billing provider
 (Stripe is the common choice) and gating the `fetch_ahrefs_domain_rating` call
 in `main.py` behind the requesting user's plan instead of a single global key.
 
+## Screenshots
+
+![Probe — SEO Analyzer](assets/hero.png)
+
 ## Tech Stack
 
 | Layer | Choice |
@@ -282,7 +286,12 @@ breaking/legal changes, minor for new features, patch for fixes. Matches the
 
 ## License
 
-Dual-licensed: **AGPLv3** for open-source use and **Commercial** for proprietary/SaaS deployments. See [`LICENSE`](LICENSE), [`COMMERCIAL-LICENSE.md`](COMMERCIAL-LICENSE.md), and [`NOTICE`](NOTICE) for terms. Trademark policy in [`TRADEMARKS.md`](TRADEMARKS.md).
+This project is dual licensed.
+
+- Community Edition — [GNU Affero General Public License v3 (AGPLv3)](LICENSE). Free to use, modify, and self-host. If you distribute a modified version or run it as a network service, you must make the corresponding source available.
+- Commercial License — for organisations that want to embed, modify, or distribute this software without AGPLv3's obligations. See [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md).
+
+Additional terms: see [`NOTICE`](NOTICE) for third-party notices and the [`TRADEMARKS.md`](TRADEMARKS.md) policy for use of the project name and branding.
 
 ---
 
