@@ -84,10 +84,11 @@ in `main.py` behind the requesting user's plan instead of a single global key.
 
 | Layer | Choice |
 |---|---|
-| Backend | FastAPI + httpx |
+| Backend (production) | Cloudflare Worker (`worker.js`), no npm dependencies |
+| Backend (local / Docker) | FastAPI + httpx (`main.py`), same API |
 | Frontend | Single-file HTML (dark-premium UI) |
 | AI | Claude API (Anthropic), `web_search` tool |
-| Hosting | Docker (Dockerfile + Procfile provided) |
+| Hosting | Cloudflare Workers at probe-seo-analyzer.thebooleanjulian.dev |
 
 ## Quick Start
 
@@ -116,13 +117,18 @@ Then open `http://localhost:8000`.
 | `ANTHROPIC_API_KEY` | Yes | — | Anthropic API key — used server-side to call Claude, never exposed to the client |
 | `ANTHROPIC_MODEL` | No | `claude-haiku-4-5-20251001` | Claude model to use — override to test other models (e.g. switch to a Sonnet model for higher-quality audits) |
 | `AHREFS_API_KEY` | No | — | Ahrefs v3 API key; when set, swaps AI estimates on Domain Rating / Ahrefs Rank for verified data |
-| `PORT` | No | `8000` | Set automatically by Zeabur |
+| `PORT` | No | `8000` | Local/Docker only |
+
+On Workers, the two keys are secrets (`npx wrangler secret put ANTHROPIC_API_KEY`) and `ANTHROPIC_MODEL` is a var in
+`wrangler.jsonc`. `GET /api/health` reports `key_configured`.
 
 ## Project Structure
 
 ```
 probe-seo-analyzer/
-|-- main.py               # FastAPI app + Anthropic/Ahrefs integration
+|-- worker.js             # production: Cloudflare Worker (port of main.py) + worker.test.js
+|-- wrangler.jsonc
+|-- main.py               # FastAPI app + Anthropic/Ahrefs integration (local / Docker)
 |-- static/
 |   `-- index.html        # Single-file HTML/CSS/JS frontend
 |-- assets/
@@ -134,23 +140,22 @@ probe-seo-analyzer/
 `-- LICENSE
 ```
 
-## Deploying on Zeabur
+## Deploying (Cloudflare Workers)
 
-1. Push this repo to GitHub (see branching note below).
-2. In Zeabur, create a new service from the GitHub repo — it will build from
-   the included `Dockerfile` automatically (Procfile is included as a
-   Nixpacks fallback if Docker build is skipped).
-3. Add `ANTHROPIC_API_KEY` (and optionally `ANTHROPIC_MODEL`) as environment
-   variables on the service.
-4. Deploy. Zeabur assigns `PORT` automatically — the app already reads it.
+1. `npx wrangler secret put ANTHROPIC_API_KEY` (and optionally `AHREFS_API_KEY`).
+2. `npx wrangler deploy` — serves `static/` and the `/api/*` routes from `worker.js` at the custom domain in
+   `wrangler.jsonc`.
+3. Tests: `node --test`.
+
+The model call stays direct to Anthropic, not through the fleet LLM gateway, because audits depend on Anthropic's
+server-side `web_search` tool.
 
 ## Branching workflow
 
 Follows the standard `feature → dev → main` pattern:
 
 - Build in `feature/*` branches.
-- Merge into `dev` for integration testing against a Zeabur preview
-  environment.
+- Merge into `dev` for integration testing (a workers.dev preview).
 - Merge `dev` → `main` to deploy to production once verified.
 
 ## Notes on scope
@@ -250,6 +255,10 @@ plan/credit balance instead of a single global `AHREFS_API_KEY`.
 Versioned using [semver](https://semver.org/) (`major.minor.patch`) — major for
 breaking/legal changes, minor for new features, patch for fixes. Matches the
 `version` set on the FastAPI app in `main.py`.
+
+### Unreleased — 2026-11-03
+- **Changed**: Hosting moved from Zeabur to Cloudflare Workers (`worker.js`, a dependency-free port of `main.py` with
+  the same API, prompt and error messages).
 
 ### v1.3.0 — 2026-07-25
 - **Added**: Third sample report on the landing page (`bnicrescendo.sg`) —
